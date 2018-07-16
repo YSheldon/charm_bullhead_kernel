@@ -27,6 +27,15 @@ obj-y += power/
 obj-y += cpu/
 obj-y += irq/
 
+#charm start
+obj-y += charm_agent.o
+obj-y += charm_register_interface.o
+obj-y += charm_irq.o
+obj-y += charm_rpc.o
+obj-y += charm_usb.o
+obj-y += charm_rbtree.o
+#charm end
+
 obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
 obj-$(CONFIG_FREEZER) += freezer.o
 obj-$(CONFIG_PROFILING) += profile.o
