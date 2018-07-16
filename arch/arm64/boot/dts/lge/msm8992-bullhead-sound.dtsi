@@ -19,9 +19,7 @@
 			/bits/ 16 <210 290 459 850 852 854 856 858>;
 		qcom,mbhc-micbias-enable-flags = <0x3>;
 	};
-};
-
-&slim_msm {
+//Charm start
         tomtom_codec {
                 cdc-vdd-spkdrv-supply = <&pmi8994_boost_pin_ctrl>;
                 qcom,cdc-vdd-spkdrv-voltage = <5000000 5000000>;
@@ -34,4 +32,22 @@
                 qcom,cdc-on-demand-supplies = "cdc-vdd-spkdrv",
                                               "cdc-vdd-spkdrv-2";
         };
+//Charm end
 };
+
+//Charm start
+////&slim_msm {
+////        tomtom_codec {
+////                cdc-vdd-spkdrv-supply = <&pmi8994_boost_pin_ctrl>;
+////                qcom,cdc-vdd-spkdrv-voltage = <5000000 5000000>;
+////                qcom,cdc-vdd-spkdrv-current = <600000>;
+////
+////                cdc-vdd-spkdrv-2-supply = <&pmi8994_boost_pin_ctrl>;
+////                qcom,cdc-vdd-spkdrv-2-voltage = <5000000 5000000>;
+////                qcom,cdc-vdd-spkdrv-2-current = <600000>;
+////
+////                qcom,cdc-on-demand-supplies = "cdc-vdd-spkdrv",
+////                                              "cdc-vdd-spkdrv-2";
+////        };
+////};
+//Charm end

@@ -47,4 +47,6 @@ IRQCHIP_DECLARE(tlmmv3_irq, "qcom,msm-tlmm-gp", irq_msm_gpio_init);
 IRQCHIP_DECLARE(tlmm_irq, "qcom,msm-gpio", irq_msm_gpio_init);
 #endif
 IRQCHIP_DECLARE(qpnp_irq, "qcom,spmi-pmic-arb", qpnpint_of_init);
-IRQCHIP_DECLARE(wcd9xxx_irq, "qcom,wcd9xxx-irq", wcd9xxx_irq_of_init);
+//Charm start
+////IRQCHIP_DECLARE(wcd9xxx_irq, "qcom,wcd9xxx-irq", wcd9xxx_irq_of_init);
+//Charm end

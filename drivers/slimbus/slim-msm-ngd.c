@@ -36,6 +36,12 @@
 #define NGD_BASE_V1(r)	(((r) % 2) ? 0x800 : 0xA00)
 #define NGD_BASE_V2(r)	(((r) % 2) ? 0x1000 : 0x2000)
 #define NGD_BASE(r, v) ((v) ? NGD_BASE_V2(r) : NGD_BASE_V1(r))
+
+//Charm start
+#undef writel_relaxed
+#define writel_relaxed(a,b)
+//Charm end
+
 /* NGD (Non-ported Generic Device) registers */
 enum ngd_reg {
 	NGD_CFG		= 0x0,
@@ -84,76 +90,76 @@ enum ngd_status {
 static void ngd_slim_rx(struct msm_slim_ctrl *dev, u8 *buf);
 static int ngd_slim_runtime_resume(struct device *device);
 static int ngd_slim_power_up(struct msm_slim_ctrl *dev, bool mdm_restart);
-
-static irqreturn_t ngd_slim_interrupt(int irq, void *d)
-{
-	struct msm_slim_ctrl *dev = (struct msm_slim_ctrl *)d;
-	void __iomem *ngd = dev->base + NGD_BASE(dev->ctrl.nr, dev->ver);
-	u32 stat = readl_relaxed(ngd + NGD_INT_STAT);
-	u32 pstat;
-
-	if ((stat & NGD_INT_MSG_BUF_CONTE) ||
-		(stat & NGD_INT_MSG_TX_INVAL) || (stat & NGD_INT_DEV_ERR) ||
-		(stat & NGD_INT_TX_NACKED_2)) {
-		writel_relaxed(stat, ngd + NGD_INT_CLR);
-		if (stat & NGD_INT_MSG_TX_INVAL)
-			dev->err = -EINVAL;
-		else
-			dev->err = -EIO;
-
-		SLIM_WARN(dev, "NGD interrupt error:0x%x, err:%d\n", stat,
-								dev->err);
-		/* Guarantee that error interrupts are cleared */
-		mb();
-		msm_slim_manage_tx_msgq(dev, false, NULL, dev->err);
-
-	} else if (stat & NGD_INT_TX_MSG_SENT) {
-		writel_relaxed(NGD_INT_TX_MSG_SENT, ngd + NGD_INT_CLR);
-		/* Make sure interrupt is cleared */
-		mb();
-		msm_slim_manage_tx_msgq(dev, false, NULL, 0);
-	}
-	if (stat & NGD_INT_RX_MSG_RCVD) {
-		u32 rx_buf[10];
-		u8 len, i;
-		rx_buf[0] = readl_relaxed(ngd + NGD_RX_MSG);
-		len = rx_buf[0] & 0x1F;
-		for (i = 1; i < ((len + 3) >> 2); i++) {
-			rx_buf[i] = readl_relaxed(ngd + NGD_RX_MSG +
-						(4 * i));
-			SLIM_DBG(dev, "REG-RX data: %x\n", rx_buf[i]);
-		}
-		ngd_slim_rx(dev, (u8 *)rx_buf);
-		writel_relaxed(NGD_INT_RX_MSG_RCVD,
-				ngd + NGD_INT_CLR);
-		/*
-		 * Guarantee that CLR bit write goes through before
-		 * queuing work
-		 */
-		mb();
-		if (dev->use_rx_msgqs == MSM_MSGQ_ENABLED)
-			SLIM_WARN(dev, "direct msg rcvd with RX MSGQs\n");
-	}
-	if (stat & NGD_INT_RECFG_DONE) {
-		writel_relaxed(NGD_INT_RECFG_DONE, ngd + NGD_INT_CLR);
-		/* Guarantee RECONFIG DONE interrupt is cleared */
-		mb();
-		/* In satellite mode, just log the reconfig done IRQ */
-		SLIM_DBG(dev, "reconfig done IRQ for NGD\n");
-	}
-	if (stat & NGD_INT_IE_VE_CHG) {
-		writel_relaxed(NGD_INT_IE_VE_CHG, ngd + NGD_INT_CLR);
-		/* Guarantee IE VE change interrupt is cleared */
-		mb();
-		SLIM_DBG(dev, "NGD IE VE change\n");
-	}
-
-	pstat = readl_relaxed(PGD_THIS_EE(PGD_PORT_INT_ST_EEn, dev->ver));
-	if (pstat != 0)
-		return msm_slim_port_irq_handler(dev, pstat);
-	return IRQ_HANDLED;
-}
-
+//Charm start
+////static irqreturn_t ngd_slim_interrupt(int irq, void *d)
+////{
+////	struct msm_slim_ctrl *dev = (struct msm_slim_ctrl *)d;
+////	void __iomem *ngd = dev->base + NGD_BASE(dev->ctrl.nr, dev->ver);
+////	u32 stat = readl_relaxed(ngd + NGD_INT_STAT);
+////	u32 pstat;
+////
+////	if ((stat & NGD_INT_MSG_BUF_CONTE) ||
+////		(stat & NGD_INT_MSG_TX_INVAL) || (stat & NGD_INT_DEV_ERR) ||
+////		(stat & NGD_INT_TX_NACKED_2)) {
+////		writel_relaxed(stat, ngd + NGD_INT_CLR);
+////		if (stat & NGD_INT_MSG_TX_INVAL)
+////			dev->err = -EINVAL;
+////		else
+////			dev->err = -EIO;
+////
+////		SLIM_WARN(dev, "NGD interrupt error:0x%x, err:%d\n", stat,
+////								dev->err);
+////		/* Guarantee that error interrupts are cleared */
+////		mb();
+////		msm_slim_manage_tx_msgq(dev, false, NULL, dev->err);
+////
+////	} else if (stat & NGD_INT_TX_MSG_SENT) {
+////		writel_relaxed(NGD_INT_TX_MSG_SENT, ngd + NGD_INT_CLR);
+////		/* Make sure interrupt is cleared */
+////		mb();
+////		msm_slim_manage_tx_msgq(dev, false, NULL, 0);
+////	}
+////	if (stat & NGD_INT_RX_MSG_RCVD) {
+////		u32 rx_buf[10];
+////		u8 len, i;
+////		rx_buf[0] = readl_relaxed(ngd + NGD_RX_MSG);
+////		len = rx_buf[0] & 0x1F;
+////		for (i = 1; i < ((len + 3) >> 2); i++) {
+////			rx_buf[i] = readl_relaxed(ngd + NGD_RX_MSG +
+////						(4 * i));
+////			SLIM_DBG(dev, "REG-RX data: %x\n", rx_buf[i]);
+////		}
+////		ngd_slim_rx(dev, (u8 *)rx_buf);
+////		writel_relaxed(NGD_INT_RX_MSG_RCVD,
+////				ngd + NGD_INT_CLR);
+////		/*
+////		 * Guarantee that CLR bit write goes through before
+////		 * queuing work
+////		 */
+////		mb();
+////		if (dev->use_rx_msgqs == MSM_MSGQ_ENABLED)
+////			SLIM_WARN(dev, "direct msg rcvd with RX MSGQs\n");
+////	}
+////	if (stat & NGD_INT_RECFG_DONE) {
+////		writel_relaxed(NGD_INT_RECFG_DONE, ngd + NGD_INT_CLR);
+////		/* Guarantee RECONFIG DONE interrupt is cleared */
+////		mb();
+////		/* In satellite mode, just log the reconfig done IRQ */
+////		SLIM_DBG(dev, "reconfig done IRQ for NGD\n");
+////	}
+////	if (stat & NGD_INT_IE_VE_CHG) {
+////		writel_relaxed(NGD_INT_IE_VE_CHG, ngd + NGD_INT_CLR);
+////		/* Guarantee IE VE change interrupt is cleared */
+////		mb();
+////		SLIM_DBG(dev, "NGD IE VE change\n");
+////	}
+////
+////	pstat = readl_relaxed(PGD_THIS_EE(PGD_PORT_INT_ST_EEn, dev->ver));
+////	if (pstat != 0)
+////		return msm_slim_port_irq_handler(dev, pstat);
+////	return IRQ_HANDLED;
+////}
+//Charm end
 static int ngd_qmi_available(struct notifier_block *n, unsigned long code,
 				void *_cmd)
 {
@@ -997,11 +1003,12 @@ static int ngd_slim_power_up(struct msm_slim_ctrl *dev, bool mdm_restart)
 	enum msm_ctrl_state cur_state = dev->state;
 	u32 laddr;
 	u32 rx_msgq;
-	u32 ngd_int = (NGD_INT_TX_NACKED_2 |
-			NGD_INT_MSG_BUF_CONTE | NGD_INT_MSG_TX_INVAL |
-			NGD_INT_IE_VE_CHG | NGD_INT_DEV_ERR |
-			NGD_INT_TX_MSG_SENT | NGD_INT_RX_MSG_RCVD);
-
+//Charm start
+////	u32 ngd_int = (NGD_INT_TX_NACKED_2 |
+////			NGD_INT_MSG_BUF_CONTE | NGD_INT_MSG_TX_INVAL |
+////			NGD_INT_IE_VE_CHG | NGD_INT_DEV_ERR |
+////			NGD_INT_TX_MSG_SENT | NGD_INT_RX_MSG_RCVD);
+//Charm end
 	if (!mdm_restart && cur_state == MSM_CTRL_DOWN) {
 		int timeout = wait_for_completion_timeout(&dev->qmi.qmi_comp,
 						HZ);
@@ -1482,16 +1489,17 @@ static int ngd_slim_probe(struct platform_device *pdev)
 	 * extensive benifits and performance
 	 * improvements.
 	 */
-	ret = request_irq(dev->irq,
-			ngd_slim_interrupt,
-			IRQF_TRIGGER_HIGH,
-			"ngd_slim_irq", dev);
-
-	if (ret) {
-		dev_err(&pdev->dev, "request IRQ failed\n");
-		goto err_request_irq_failed;
-	}
-
+//Charm start
+////	ret = request_irq(dev->irq,
+////			ngd_slim_interrupt,
+////			IRQF_TRIGGER_HIGH,
+////			"ngd_slim_irq", dev);
+////
+////	if (ret) {
+////		dev_err(&pdev->dev, "request IRQ failed\n");
+////		goto err_request_irq_failed;
+////	}
+//Charm end
 	init_completion(&dev->qmi.qmi_comp);
 	dev->err = -EPROBE_DEFER;
 	pm_runtime_use_autosuspend(dev->dev);
@@ -1545,8 +1553,10 @@ err_notify_thread_create_failed:
 	kthread_stop(dev->rx_msgq_thread);
 err_rx_thread_create_failed:
 	free_irq(dev->irq, dev);
-err_request_irq_failed:
-	slim_del_controller(&dev->ctrl);
+//Charm start
+////err_request_irq_failed:
+////	slim_del_controller(&dev->ctrl);
+//Charm end
 err_ctrl_failed:
 	iounmap(dev->bam.base);
 err_ioremap_bam_failed:

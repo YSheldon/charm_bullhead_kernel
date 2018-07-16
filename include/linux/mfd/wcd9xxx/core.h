@@ -233,14 +233,16 @@ int wcd9xxx_slim_reserve_bw(struct wcd9xxx *wcd9xxx,
 	defined(CONFIG_WCD9330_CODEC) || \
 	defined(CONFIG_WCD9306_CODEC) || \
 	defined(CONFIG_SND_SOC_MSM8X16_WCD)
-int __init wcd9xxx_irq_of_init(struct device_node *node,
-			       struct device_node *parent);
+//Charm start
+////int __init wcd9xxx_irq_of_init(struct device_node *node,
+////			       struct device_node *parent);
 #else
-static inline int __init wcd9xxx_irq_of_init(struct device_node *node,
-			       struct device_node *parent)
-{
-	return 0;
-}
+////static inline int __init wcd9xxx_irq_of_init(struct device_node *node,
+////			       struct device_node *parent)
+////{
+////	return 0;
+////}
+//Charm end
 #endif	/* CONFIG_OF */
 static inline void wcd9xxx_reg_update(struct wcd9xxx *core,
 				      unsigned short reg,

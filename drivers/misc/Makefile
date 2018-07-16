@@ -66,6 +66,8 @@ obj-$(CONFIG_QFP_FUSE) += qfp_fuse.o
 obj-$(CONFIG_TI_DRV2667) += ti_drv2667.o
 obj-$(CONFIG_QPNP_MISC) += qpnp-misc.o
 obj-$(CONFIG_QCOM_LIQUID_DOCK)	+= qcom_liquid_dock.o
-obj-y				+= qcom/
+#Charm start
+####obj-y				+= qcom/
+#Charm end
 obj-$(CONFIG_EARJACK_DEBUGGER) += earjack_debugger.o
 obj-$(CONFIG_UID_CPUTIME) += uid_cputime.o

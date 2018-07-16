@@ -645,5 +645,7 @@ source "drivers/misc/carma/Kconfig"
 source "drivers/misc/altera-stapl/Kconfig"
 source "drivers/misc/mei/Kconfig"
 source "drivers/misc/vmw_vmci/Kconfig"
-source "drivers/misc/qcom/Kconfig"
+#Charm start
+####source "drivers/misc/qcom/Kconfig"
+#Charm end
 endmenu
