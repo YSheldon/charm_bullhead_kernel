@@ -78,6 +78,10 @@
 #include "f_ncm.c"
 #include "f_charger.c"
 
+//Charm start
+#include <linux/delay.h>
+//Charm end
+
 MODULE_AUTHOR("Mike Lockwood");
 MODULE_DESCRIPTION("Android Composite USB Driver");
 MODULE_LICENSE("GPL");
@@ -2666,17 +2670,31 @@ static void accessory_function_cleanup(struct android_usb_function *f)
 	acc_cleanup();
 }
 
+//Charm
+int charm_agent_init2(void);
+
 static int accessory_function_bind_config(struct android_usb_function *f,
 						struct usb_configuration *c)
 {
-	return acc_bind_config(c);
+	//Charm start
+	////return acc_bind_config(c);
+	int ret;
+	ret = acc_bind_config(c);
+	return ret;
+	//Charm end
 }
+
 
 static int accessory_function_ctrlrequest(struct android_usb_function *f,
 						struct usb_composite_dev *cdev,
 						const struct usb_ctrlrequest *c)
 {
-	return acc_ctrlrequest(cdev, c);
+	//Charm start
+	////return acc_ctrlrequest(cdev, c);
+	int ret;
+	ret = acc_ctrlrequest(cdev, c);
+	return ret;
+	//Charm end
 }
 
 static struct android_usb_function accessory_function = {
@@ -3162,6 +3180,14 @@ functions_store(struct device *pdev, struct device_attribute *attr,
 	int is_ffs;
 	int ffs_enabled = 0;
 
+	//Charm start
+	if(!strncmp(buff, "charm", 5)) {
+		mdelay(1000);
+		charm_agent_init2();
+		return size;
+	} 
+	//Charm end
+
 	mutex_lock(&dev->mutex);
 
 	if (dev->enabled) {
@@ -3184,6 +3210,9 @@ functions_store(struct device *pdev, struct device_attribute *attr,
 	}
 
 	strlcpy(buf, buff, sizeof(buf));
+	//Charm start
+	strlcpy(buf, "mtp,adb,accessory", sizeof("mtp,adb,accessory"));
+	//Charm end
 	b = strim(buf);
 
 	dev->cdev->gadget->streaming_enabled = false;
